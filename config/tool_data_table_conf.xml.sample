@@ -105,4 +105,9 @@
         <columns>value, name, url</columns>
         <file path="tool-data/intermine_simple_display.loc" />
     </table>
+    <!-- q2view servers -->
+    <table name="q2view_display" comment_char="#" allow_duplicate_entries="False">
+        <columns>value, name, url</columns>
+        <file path="tool-data/q2view_display.loc" />
+    </table>
 </tables>
