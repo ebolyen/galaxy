@@ -10,7 +10,7 @@ from galaxy.datatypes.metadata import MetadataElement
 
 class Qiime2Result(CompressedZipArchive):
     MetadataElement(name="semantic_type", readonly=True)
-    MetadataElement(name="semantic_type_simple", readonly=True, visble=False)
+    MetadataElement(name="semantic_type_simple", readonly=True, visible=False)
     MetadataElement(name="uuid", readonly=True)
     MetadataElement(name="format", optional=True, no_value='', readonly=True)
     MetadataElement(name="version", readonly=True)
@@ -27,30 +27,28 @@ class Qiime2Result(CompressedZipArchive):
         if dataset.metadata.semantic_type == 'Visualization':
             dataset.blurb = 'QIIME 2 Visualization'
         else:
-            dataset.blurb = ('QIIME 2 Artifact\n%s'
-                             % dataset.metadata.semantic_type)
+            dataset.blurb = 'QIIME 2 Artifact'
 
         dataset.peek = '\n'.join(map(': '.join, self._peek(dataset)))
 
     def display_peek(self, dataset):
         def make_row(item):
-            return '<tr><td>%s</td><td>%s</td></td>' % item
+            return '<tr><th>%s</th><td>%s</td></td>' % item
 
-        table = ['<table cellspacing="0" cellpadding="3">']
-        table += list(map(make_row, self._peek(dataset)))
+        table = ['<table cellspacing="0" cellpadding="2">']
+        table += list(map(make_row, self._peek(dataset, simple=True)))
         table += ['</table>']
-
-        print(table)
 
         return ''.join(table)
 
-    def _peek(self, dataset):
+    def _peek(self, dataset, simple=False):
         peek = [
             ('Type', dataset.metadata.semantic_type),
             ('UUID', dataset.metadata.uuid)]
-        if dataset.metadata.format is not None:
-            peek.append(('Format', dataset.metadata.format))
-        peek.append(('Version', dataset.metadata.version))
+        if not simple:
+            if dataset.metadata.format is not None:
+                peek.append(('Format', dataset.metadata.format))
+            peek.append(('Version', dataset.metadata.version))
         return peek
 
     def _sniff(self, filename):
