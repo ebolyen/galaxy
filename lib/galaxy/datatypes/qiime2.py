@@ -76,6 +76,40 @@ class QIIME2Visualization(QIIME2Result):
         return metadata and metadata['semantic_type'] == 'Visualization'
 
 
+class PredicateRemover(ast.NodeTransformer):
+    def visit_BinOp(self, node):
+        if isinstance(node.op, ast.Mod):
+            PredicateRemover().visit(node.left)
+            return node.left
+
+
+class ReconstructExpression(ast.NodeVisitor):
+    expression = '%s'
+    tuple_count = 0
+    in_index = False
+
+    def visit_Name(self, node):
+        if self.tuple_count == 0:
+            self.expression = self.expression % node.id
+            if self.in_index:
+                self.expression += ']'
+                self.in_index = False
+        else:
+            self.expression = self.expression % node.id + ", %s"
+            self.tuple_count -= 1
+
+        self.generic_visit(node)
+
+    def visit_Index(self, node):
+        self.in_index = True
+        self.expression += '[%s'
+        self.generic_visit(node)
+
+    def visit_Tuple(self, node):
+        self.tuple_count = len(node.elts) - 1
+        self.generic_visit(node)
+
+
 def _get_metadata_from_archive(archive):
     uuid = _get_uuid(archive)
     archive_version, framework_version = _get_versions(archive, uuid)
