@@ -16,7 +16,7 @@ class TestStripProperties(unittest.TestCase):
 
         reconstruct = ReconstructExpression()
         reconstruct.visit(simple_tree)
-        self.assertEquals(reconstruct.expression, stripped_expression)
+        self.assertEqual(reconstruct.expression, stripped_expression)
 
     def test_single(self):
         single_expression = 'FeatureData[Taxonomy % Properties("SILVIA")]'
@@ -27,7 +27,7 @@ class TestStripProperties(unittest.TestCase):
 
         reconstruct = ReconstructExpression()
         reconstruct.visit(single_tree)
-        self.assertEquals(reconstruct.expression, stripped_expression)
+        self.assertEqual(reconstruct.expression, stripped_expression)
 
     def test_double(self):
         double_expression = ('FeatureData[Taxonomy % Properties("SILVIA"), '
@@ -51,7 +51,7 @@ class TestStripProperties(unittest.TestCase):
 
         reconstruct = ReconstructExpression()
         reconstruct.visit(nested_tree)
-        self.assertEquals(reconstruct.expression, stripped_expression)
+        self.assertEqual(reconstruct.expression, stripped_expression)
 
     def test_complex(self):
         complex_expression = \
@@ -64,4 +64,4 @@ class TestStripProperties(unittest.TestCase):
 
         reconstruct = ReconstructExpression()
         reconstruct.visit(complex_tree)
-        self.assertEquals(reconstruct.expression, stripped_expression)
+        self.assertEqual(reconstruct.expression, stripped_expression)
