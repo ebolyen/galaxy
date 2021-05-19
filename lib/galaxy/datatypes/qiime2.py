@@ -15,6 +15,9 @@ def strip_properties(expression):
         reconstructer = ReconstructExpression()
         reconstructer.visit(expression_tree)
         return reconstructer.expression
+    # If we have any problems stripping properties just use the full expression
+    # this punts the error off to the GUI so if we error we do so there and not
+    # here
     except Exception:
         return expression
 
