@@ -21,7 +21,18 @@ class QIIME2Result(CompressedZipArchive):
             if value:
                 setattr(dataset.metadata, key, value)
 
-        dataset.metadata.semantic_type_simple = 'TODO'
+        try:
+            expression_tree = ast.parse(dataset.metadata.semantic_type)
+            PredicateRemover().visit(expression_tree)
+            reconstructer = ReconstructExpression()
+            reconstructer.visit(expression_tree)
+            dataset.metadata.semantic_type_simple = reconstructer.expression
+        # If anything went wrong just default to using the full type. This
+        # punts any potential issues off to the GUI instead of raising back end
+        # exceptions
+        except:
+            dataset.metadata.semantic_type_simple = \
+                dataset.metadata.semantic_type
 
     def set_peek(self, dataset, is_multi_byte=False):
         if dataset.metadata.semantic_type == 'Visualization':
@@ -79,32 +90,50 @@ class QIIME2Visualization(QIIME2Result):
 class PredicateRemover(ast.NodeTransformer):
     def visit_BinOp(self, node):
         if isinstance(node.op, ast.Mod):
-            PredicateRemover().visit(node.left)
-            return node.left
+            return PredicateRemover().visit(node.left)
+        return node
 
 
 class ReconstructExpression(ast.NodeVisitor):
     expression = '%s'
     tuple_count = 0
+<<<<<<< HEAD
     in_index = False
 
+=======
+
+>>>>>>> SQUASH: second pass at strip properties
     def visit_Name(self, node):
         if self.tuple_count == 0:
             self.expression = self.expression % node.id
-            if self.in_index:
-                self.expression += ']'
-                self.in_index = False
         else:
-            self.expression = self.expression % node.id + ", %s"
+            self.expression = self.expression % node.id + ' ,%s'
             self.tuple_count -= 1
 
         self.generic_visit(node)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> SQUASH: second pass at strip properties
     def visit_Index(self, node):
-        self.in_index = True
+        pre_strip = len(self.expression)
+        self.expression = self.expression.rstrip(', %s')
+        post_strip = len(self.expression)
+
         self.expression += '[%s'
         self.generic_visit(node)
+<<<<<<< HEAD
 
+=======
+        self.expression += ']'
+
+        # If we stripped the space for the next tuple element to accomodate a
+        # nested index we now need to add that space back
+        if post_strip < pre_strip:
+            self.expression += ', %s'
+
+>>>>>>> SQUASH: second pass at strip properties
     def visit_Tuple(self, node):
         self.tuple_count = len(node.elts) - 1
         self.generic_visit(node)
