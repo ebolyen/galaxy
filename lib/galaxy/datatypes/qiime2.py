@@ -97,25 +97,17 @@ class PredicateRemover(ast.NodeTransformer):
 class ReconstructExpression(ast.NodeVisitor):
     expression = '%s'
     tuple_count = 0
-<<<<<<< HEAD
     in_index = False
 
-=======
-
->>>>>>> SQUASH: second pass at strip properties
     def visit_Name(self, node):
         if self.tuple_count == 0:
             self.expression = self.expression % node.id
         else:
-            self.expression = self.expression % node.id + ' ,%s'
+            self.expression = self.expression % node.id + ', %s'
             self.tuple_count -= 1
 
         self.generic_visit(node)
-<<<<<<< HEAD
 
-=======
-
->>>>>>> SQUASH: second pass at strip properties
     def visit_Index(self, node):
         pre_strip = len(self.expression)
         self.expression = self.expression.rstrip(', %s')
@@ -123,9 +115,6 @@ class ReconstructExpression(ast.NodeVisitor):
 
         self.expression += '[%s'
         self.generic_visit(node)
-<<<<<<< HEAD
-
-=======
         self.expression += ']'
 
         # If we stripped the space for the next tuple element to accomodate a
@@ -133,7 +122,6 @@ class ReconstructExpression(ast.NodeVisitor):
         if post_strip < pre_strip:
             self.expression += ', %s'
 
->>>>>>> SQUASH: second pass at strip properties
     def visit_Tuple(self, node):
         self.tuple_count = len(node.elts) - 1
         self.generic_visit(node)
