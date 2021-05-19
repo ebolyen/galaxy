@@ -8,6 +8,17 @@ from galaxy.datatypes.binary import CompressedZipArchive
 from galaxy.datatypes.metadata import MetadataElement
 
 
+def strip_properties(expression):
+    try:
+        expression_tree = ast.parse(expression)
+        PredicateRemover().visit(expression_tree)
+        reconstructer = ReconstructExpression()
+        reconstructer.visit(expression_tree)
+        return reconstructer.expression
+    except Exception:
+        return expression
+
+
 class QIIME2Result(CompressedZipArchive):
     MetadataElement(name="semantic_type", readonly=True)
     MetadataElement(name="semantic_type_simple", readonly=True, visible=False)
@@ -21,18 +32,8 @@ class QIIME2Result(CompressedZipArchive):
             if value:
                 setattr(dataset.metadata, key, value)
 
-        try:
-            expression_tree = ast.parse(dataset.metadata.semantic_type)
-            PredicateRemover().visit(expression_tree)
-            reconstructer = ReconstructExpression()
-            reconstructer.visit(expression_tree)
-            dataset.metadata.semantic_type_simple = reconstructer.expression
-        # If anything went wrong just default to using the full type. This
-        # punts any potential issues off to the GUI instead of raising back end
-        # exceptions
-        except:
-            dataset.metadata.semantic_type_simple = \
-                dataset.metadata.semantic_type
+        dataset.metadata.semantic_type_simple = \
+            strip_properties(dataset.metadata.semantic_type)
 
     def set_peek(self, dataset, is_multi_byte=False):
         if dataset.metadata.semantic_type == 'Visualization':
