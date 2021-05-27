@@ -1,7 +1,7 @@
 import io
 import ast
-import zipfile
 import uuid as _uuid
+import zipfile
 
 import yaml
 

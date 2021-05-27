@@ -1,4 +1,3 @@
-import ast
 import unittest
 
 from galaxy.datatypes.qiime2 import strip_properties
